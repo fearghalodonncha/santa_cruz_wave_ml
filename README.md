@@ -13,4 +13,5 @@ and outputs.
 The folder `ml_model_forecast` contains resources to use these design matrices
 to train and run a machine learning model
 
-More details regarding the implementation available from our [paper](https://arxiv.org/pdf/1709.08725.pdf)
+More details regarding the implementation available from our [paper](https://arxiv.org/pdf/1709.08725.pdf), _A machine learning framework to forecast wave conditions_
+

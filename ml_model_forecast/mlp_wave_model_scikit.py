@@ -114,7 +114,7 @@ def predmodel(X_train_minmax, Y_hsig):
 if __name__ == '__main__':
     #read from X, Y txt
     global thisdirectory, backforward
-    thisdirectory = '../BuildDesignMatrices/'
+    thisdirectory = './data/'
     slash = 'forward'
     if slash == 'back':
         backforward = '\\'

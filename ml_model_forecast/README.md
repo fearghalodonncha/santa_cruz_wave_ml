@@ -11,14 +11,21 @@ The model requires input data of features (boundary conditions) and labels (SWAN
 
 The data can be downloaded here:   
 
-[X design matrix](https://baylor.box.com/s/uqbu8o7jzn9df2j774peklt4ffimm4nq)   
-[Y design matrix](https://baylor.box.com/s/h5a7bhnwwnay5l8g5jorca2oemjjxcuf)    
+[X design matrix](https://ibm.box.com/s/vqco26m3c3rifx7hivlbjdr5kwnuksm8)   
+[Y design matrix](https://ibm.box.com/s/bto1i01stq2a6glq39mk5vanm74ftr6f)    
 
 Place the xdt.txt and ydt1.txt files in the ./data folder   
 
-The model can then be run as above:   
-python mlp_wave_model_tf.py (TensorFlow) or   
-python mlp_wave_model_scikit.py (Sklearn)
+The model can then be run as follows:
+ - To train the MLP model we run as    
+   .. - `python mlp_wave_model_scikit.py fit`
+ - To use the MLP model to make forecast, we run as
+   .. - `python mlp_wave_model_scikit.py pred`
+
+
+Note that in order to make a prediction, first the model must have been trained
+using the first `fit` command.
+
+
 
 For simplicity a docker file is provided for the tensorflow setup
-

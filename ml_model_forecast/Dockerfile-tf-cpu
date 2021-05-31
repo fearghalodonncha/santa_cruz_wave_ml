@@ -1,0 +1,107 @@
+# Building:
+#       docker build --squash --tag dev-images:tf-cpu-ubuntu . -f Dockerfile-tf-cpu
+# Removing intermediate images and inactive containers afterwards:
+#       docker images -q --filter dangling=true | xargs docker rmi
+#       docker rm $(docker ps -qa --no-trunc --filter "status=exited")
+# Extracting for sharing on another machine:
+#       docker save dev-images:tf-cpu-ubuntu > tf-cpu-ubuntu.tar
+# Loading on another machine:
+#       docker load < tf-cpu-ubuntu.tar
+# Running with network, sharing of the directory "work" and
+# full access to physical memory:
+#       docker run -it --volume /home/albert/work:/root/work \
+#                  --cap-add=NET_ADMIN --device=/dev/net/tun \
+#                  --privileged --volume /dev/shm:/dev/shm \
+#                  dev-images:tf-cpu-ubuntu /bin/bash
+
+FROM ubuntu:17.10
+
+# The original script came from this source:
+# https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/docker
+# with some important tweaks I have added. In particular, the building
+# process was split into stages to make sure certain packages are installed
+# strictly one after another. Also, I dropped jupyter installation as we do
+# not need jupyter while running (long time) simulations on the blades.
+
+LABEL maintainer="Albert Akhriev, albert_akhriev@ie.ibm.com"
+
+ENV LC_ALL=
+
+# System package. Note, Python package "setuptools" was installed by pip3 (but not by apt-get).
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    libfreetype6-dev \
+    libpng12.* \
+    libjpeg-dev \
+    libzmq3-dev \
+    pkg-config \
+    rsync \
+    software-properties-common \
+    unzip bzip2 \
+    git mc vim nano make cmake gdb openssh-client openssh-server \
+    binutils sshfs exuberant-ctags \
+    python3.6 python3-dev python3-pip \
+    python3-numpy python3-scipy python3-matplotlib \
+    && \
+    apt-get clean && apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip3 --no-cache-dir install setuptools
+
+# Basic packages.
+RUN pip3 --no-cache-dir install \
+    cython \
+#    numpy \
+#    scipy \
+#    matplotlib \
+    h5py \
+    pandas \
+    Pillow
+
+# Machine learning packages.
+RUN pip3 --no-cache-dir install \
+    Pillow \
+    scikit-learn \
+    scikit-image \
+    sympy \
+    keras \
+    tensorflow
+
+# We need tkinter for tensorflow
+RUN add-apt-repository -y ppa:deadsnakes/ppa 
+RUN apt-get update; exit 0 
+RUN apt-get install -y --no-install-recommends python3.6-tk
+
+#RUN pip3 install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.7.0-cp36-cp36m-linux_x86_64.whl
+
+# Interactive Python.
+RUN pip3 --no-cache-dir install \
+    ipython ### ipykernel && python3 -m ipykernel.kernelspec
+
+# Working directory.
+WORKDIR /root/work
+
+# TensorBoard
+EXPOSE 6006
+
+# Add data to train the model to the Dockerimage
+ADD AI_WaveForecasting/ /root/work/AI_WaveForecasting/
+
+# RUN ssh-keygen -t rsa -f ${HOME}/.ssh/id_rsa -q -P ""
+RUN echo '' >> ~/.bashrc && \
+    echo 'alias nano="nano -i -c --tabsize=4 --tabstospaces "' \
+            >> ~/.bashrc && \
+    echo 'alias py3="python3 "' \
+            >> ~/.bashrc && \
+    echo 'alias py3d="python3 -m pdb "' \
+            >> ~/.bashrc && \
+    echo 'alias ipy="ipython "' \
+            >> ~/.bashrc && \
+    echo 'alias pip-update="pip3 list --user -o | cut -d '"' '"' -f 1 | tail -n +3 | xargs pip3 install -U"' \
+            >> ~/.bashrc && \
+    echo 'PS1="\[\e[1;32m\]\u\[\e[1;36m\]@\[\e[1;31m\]\h\[\e[1;35m\]:\w\$\[\e[0;30m\] "' \
+            >> ~/.bashrc
+
+# Execute this command on start-up.
+CMD ["/bin/bash"]

@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ignore the training matrix files due to large file size
+xdt1.txt
+ydt1.txt

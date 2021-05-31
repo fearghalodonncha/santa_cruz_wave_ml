@@ -12,7 +12,10 @@ the mapping.
 
 ## Running the script.
 Simply run as
-python XYBuilder.py which creates as outputs design matrices
+```
+python XYBuilder.py 
+```
+which creates as outputs design matrices
 xdt1.txt (features) and ydt1.txt (labels).
 
 The design matrices are generated from SWAN standard input files
